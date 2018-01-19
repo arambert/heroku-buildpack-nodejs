@@ -11,8 +11,8 @@
 testNoVersion() {
   compile "no-version"
   assertCaptured "engines.node (package.json):  unspecified"
-  assertCaptured "Resolving node version 6.x"
-  assertCaptured "Downloading and installing node 6."
+  assertCaptured "Resolving node version 8.x"
+  assertCaptured "Downloading and installing node 8."
   assertCapturedSuccess
 }
 
@@ -189,8 +189,16 @@ testYarnLockfileOutOfDate() {
 
 testDefaultToNpm5() {
   compile "npm-lockfile-no-version"
+  assertCaptured "Using default npm version"
+  assertCaptured "Installing node modules (package.json + package-lock)"
+  assertCapturedSuccess
+}
+
+testDefaultToNpm5WithNode6() {
+  compile "npm-lockfile-node-6-no-version"
   assertCaptured "Detected package-lock.json"
   assertCaptured "Bootstrapping npm 5"
+  assertCaptured "Installing node modules (package.json + package-lock)"
   assertCapturedSuccess
 }
 
@@ -386,6 +394,15 @@ testConcurrencyCustomLimit() {
   assertCapturedSuccess
 }
 
+# When /sys/fs/cgroup/memory/memory.limit_in_bytes lies and gives a ridiculous value
+# This happens on Dokku for example
+testConcurrencyTooHigh() {
+  LOG_CONCURRENCY=true MEMORY_AVAILABLE=10000000000 capture $(pwd)/profile/WEB_CONCURRENCY.sh
+  assertCaptured "Could not determine a reasonable value for WEB_CONCCURENCY"
+  assertCaptured "Recommending WEB_CONCURRENCY=1"
+  assertCapturedSuccess
+}
+
 testInvalidNode() {
   compile "invalid-node"
   assertCaptured "Resolving node version 0.11.333"
@@ -545,7 +562,7 @@ testDangerousRangeStar() {
   compile "dangerous-range-star"
   assertCaptured "Dangerous semver range"
   assertCaptured "Resolving node version *"
-  assertCaptured "Downloading and installing node 8."
+  assertCaptured "Downloading and installing node 9."
   assertCapturedError
 }
 
@@ -553,14 +570,14 @@ testDangerousRangeGreaterThan() {
   compile "dangerous-range-greater-than"
   assertCaptured "Dangerous semver range"
   assertCaptured "Resolving node version >0.4"
-  assertCaptured "Downloading and installing node 8."
+  assertCaptured "Downloading and installing node 9."
   assertCapturedError
 }
 
 testRangeWithSpace() {
   compile "range-with-space"
   assertCaptured "Resolving node version >= 0.8.x"
-  assertCaptured "Downloading and installing node 8."
+  assertCaptured "Downloading and installing node 9."
   assertCapturedSuccess
 }
 

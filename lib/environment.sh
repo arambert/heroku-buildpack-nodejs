@@ -34,13 +34,19 @@ list_node_config() {
     echo "npm scripts will see NODE_ENV=production (not '${NODE_ENV}')"
     echo "https://docs.npmjs.com/misc/config#production"
   fi
+
+  if [ "$NPM_CONFIG_PRODUCTION" == "true" ]; then
+    mcount "npm-config-production-true"
+  elif [ "$NPM_CONFIG_PRODUCTION" == "false" ]; then
+    mcount "npm-config-production-false"
+  fi
 }
 
 export_env_dir() {
   local env_dir=$1
   if [ -d "$env_dir" ]; then
     local whitelist_regex=${2:-''}
-    local blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|LANG)$'}
+    local blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|LANG|BUILD_DIR)$'}
     if [ -d "$env_dir" ]; then
       for e in $(ls $env_dir); do
         echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&

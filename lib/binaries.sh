@@ -1,15 +1,6 @@
-needs_resolution() {
-  local semver=$1
-  if ! [[ "$semver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 install_yarn() {
   local dir="$1"
-  local version=${2:-0.28.4}
+  local version=${2:-1.x}
   local number
   local url
 
@@ -36,7 +27,7 @@ install_yarn() {
 }
 
 install_nodejs() {
-  local version=${1:-6.x}
+  local version=${1:-8.x}
   local dir="$2"
 
   echo "Resolving node version $version..."
@@ -78,8 +69,11 @@ install_npm() {
   local version="$1"
   local dir="$2"
   local npm_lock="$3"
+  local npm_version="$(npm --version)"
 
-  if $npm_lock && [ "$version" == "" ]; then
+  # If the user has not specified a version of npm, but has an npm lockfile
+  # upgrade them to npm 5.x if a suitable version was not installed with Node
+  if $npm_lock && [ "$version" == "" ] && [ "${npm_version:0:1}" -lt "5" ]; then
     echo "Detected package-lock.json: defaulting npm to version 5.x.x"
     version="5.x.x"
   fi
